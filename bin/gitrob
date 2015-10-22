@@ -213,7 +213,11 @@ class App
   description "Reconnaissance tool for GitHub organizations."
 
   options['bind-address'] = '127.0.0.1'
-  options['port']         = 9393
+  if ENV['PORT'].nil?
+    options['port'] = 9393
+  else
+    options['port'] = Integer(ENV['PORT'])
+  end
   options['threads']      = 3
 
   on('-o', '--organization NAME', "Name of GitHub organization")
