@@ -15,17 +15,6 @@ class App
     puts Paint[Gitrob::banner, :bright, :blue] unless options.include?('no-banner')
     Gitrob::status("Starting Gitrob version #{Gitrob::VERSION} at #{Time.now.strftime("%Y-%m-%d %I:%S %Z")}")
 
-    if !Gitrob::agreement_accepted?
-      puts Gitrob::agreement
-      print Paint["\n\nDo you agree to the terms of use? [y/n]: ", :bright, :green]
-      choice = $stdin.gets.chomp
-      if %w{y yes}.include?(choice)
-        Gitrob::agreement_accepted
-      else
-        Gitrob::fatal("Exiting Gitrob.")
-      end
-    end
-
     if !Gitrob::configured? || options.include?('configure')
       Gitrob::status("Starting Gitrob configuration wizard\n\n")
 
