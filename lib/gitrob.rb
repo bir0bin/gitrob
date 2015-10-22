@@ -88,7 +88,8 @@ module Gitrob
   end
 
   def self.configured?
-    File.exists?("#{Dir.home}/.gitrobrc")
+    env_config_complete = not(ENV['DATABASE_URL'].nil? or ENV['GITHUB_ACCESS_TOKENS'].nil?)
+    File.exists?("#{Dir.home}/.gitrobrc") or env_config_complete
   end
 
   def self.configuration
@@ -96,7 +97,14 @@ module Gitrob
   end
 
   def self.load_configuration!
-    YAML.load_file("#{Dir.home}/.gitrobrc")
+    if File.exists?("#{Dir.home}/.gitrobrc")
+      YAML.load_file("#{Dir.home}/.gitrobrc")
+    else
+      {
+        'sql_connection_uri'   => ENV['DATABASE_URL'],
+        'github_access_tokens' => ENV['GITHUB_ACCESS_TOKENS'].split(',')
+      } 
+    end
   end
 
   def self.save_configuration!(config)
