@@ -1,7 +1,9 @@
+require 'omniauth-google-oauth2'
+
 module Gitrob
   class WebApp < Sinatra::Base
     set :logging, false
-    set :sessions, false
+    set :sessions, true
     set :app_file, __FILE__
     set :root, File.expand_path("#{File.dirname(__FILE__)}/../../")
     set :public_folder, Proc.new { File.join(root, "public") }
@@ -34,18 +36,28 @@ module Gitrob
       end
     end
 
+    def require_login
+      redirect '/auth/g' unless session[:authenticated]
+    end
+
     before do
       response.headers['Content-Security-Policy'] = "default-src *; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'"
       response.headers['X-Content-Security-Policy'] = "default-src *; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'"
       response.headers['X-WebKit-CSP'] = "default-src *; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'"
     end
 
+    use OmniAuth::Builder do
+      provider :google_oauth2, ENV['GOOGLE_CLIENT_ID'], ENV['GOOGLE_CLIENT_SECRET']
+    end
+
     get '/' do
+      require_login
       @orgs = Gitrob::Organization.all(:order => [:created_at.desc])
       erb :index
     end
 
     get '/orgs/:id' do
+      require_login
       @org = Gitrob::Organization.get(params['id'])
       @blobs_with_findings = @org.blobs.all(:findings_count.gt => 0)
       @repos = @org.repos.all(:order => [:owner_name, :name])
@@ -53,11 +65,13 @@ module Gitrob
     end
 
     get '/repos/:id' do
+      require_login
       @repo = Gitrob::Repo.get(params['id'])
       erb :repository
     end
 
     get '/ajax/users/:username' do
+      require_login
       if params['type'] == 'org'
         @user  = Gitrob::Organization.first(:name => params['username'])
         @repos = @user.repos.all(:user => nil)
@@ -69,6 +83,7 @@ module Gitrob
     end
 
     get '/ajax/blobs/:id' do
+      require_login
       @blob = Gitrob::Blob.get(params['id'])
       erb :blob, :layout => false
     end
