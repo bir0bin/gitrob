@@ -90,5 +90,10 @@ module Gitrob
       @blob = Gitrob::Blob.get(params['id'])
       erb :blob, :layout => false
     end
+
+    get '/auth/failure' do
+      erb "<h1>Authentication Failed</h1>
+           <pre>#{params}</pre>"
+    end
   end
 end
