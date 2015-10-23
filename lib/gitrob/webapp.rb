@@ -37,7 +37,7 @@ module Gitrob
     end
 
     def require_login
-      redirect '/auth/g' unless session[:authenticated]
+      redirect '/auth/google_oauth2' unless session[:authenticated]
     end
 
     before do
@@ -47,7 +47,10 @@ module Gitrob
     end
 
     use OmniAuth::Builder do
-      provider :google_oauth2, ENV['GOOGLE_CLIENT_ID'], ENV['GOOGLE_CLIENT_SECRET']
+      provider :google_oauth2, ENV['GOOGLE_CLIENT_ID'], ENV['GOOGLE_CLIENT_SECRET'],
+        {
+          :hd => "pagerduty.com"
+        }
     end
 
     get '/' do
