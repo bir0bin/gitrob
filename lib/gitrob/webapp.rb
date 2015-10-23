@@ -48,7 +48,7 @@ module Gitrob
 
     use OmniAuth::Builder do
       provider :google_oauth2, ENV['GOOGLE_CLIENT_ID'], ENV['GOOGLE_CLIENT_SECRET'], {
-        :scope => 'userinfo.email'
+        :scope => 'https://www.googleapis.com/auth/userinfo.email'
       }
     end
 
