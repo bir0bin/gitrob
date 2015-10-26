@@ -48,7 +48,11 @@ module Gitrob
 
     use OmniAuth::Builder do
       provider :google_oauth2, ENV['GOOGLE_CLIENT_ID'], ENV['GOOGLE_CLIENT_SECRET'], {
-        :scope => 'https://www.googleapis.com/auth/userinfo.email'
+        :skip_jwt => true,
+        setup: (lambda do |env|
+           request = Rack::Request.new(env)
+           env['omniauth.strategy'].options['token_params'] = {:redirect_uri => 'http://localhost:33333/auth/google_oauth2/callback'}
+        end)
       }
     end
 
@@ -90,9 +94,23 @@ module Gitrob
       erb :blob, :layout => false
     end
 
+    get '/auth/:provider/callback' do
+      auth = request.env['omniauth.auth']
+
+      if auth[:extra][:raw_info][:hd] == 'pagerduty.com'
+	session[:authenticated] = true
+      end
+
+      redirect '/'
+    end
+
     get '/auth/failure' do
       erb "<h1>Authentication Failed</h1>
            <pre>#{params}</pre>"
+    end
+
+    get '/logout' do
+      session.clear
     end
   end
 end

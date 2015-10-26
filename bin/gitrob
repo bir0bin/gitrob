@@ -2,6 +2,7 @@
 # coding: utf-8
 
 require 'gitrob'
+# require 'httplog'
 
 class App
   include Methadone::Main
