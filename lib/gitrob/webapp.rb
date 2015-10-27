@@ -48,6 +48,7 @@ module Gitrob
 
     use OmniAuth::Builder do
       provider :google_oauth2, ENV['GOOGLE_CLIENT_ID'], ENV['GOOGLE_CLIENT_SECRET'], {
+        # https://github.com/zquestz/omniauth-google-oauth2/issues/197
         # :skip_jwt => true, # only for localhost development
         :hd => "pagerduty.com",
         setup: (lambda do |env|
