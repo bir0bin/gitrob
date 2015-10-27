@@ -48,10 +48,12 @@ module Gitrob
 
     use OmniAuth::Builder do
       provider :google_oauth2, ENV['GOOGLE_CLIENT_ID'], ENV['GOOGLE_CLIENT_SECRET'], {
-        :skip_jwt => true,
+        # :skip_jwt => true, # only for localhost development
+        :hd => "pagerduty.com",
         setup: (lambda do |env|
            request = Rack::Request.new(env)
-           env['omniauth.strategy'].options['token_params'] = {:redirect_uri => 'http://localhost:33333/auth/google_oauth2/callback'}
+           # ugh, this is such a hack
+           env['omniauth.strategy'].options['token_params'] = {:redirect_uri => 'https://pd-gitrob.herokuapp.com/auth/google_oauth2/callback'}
         end)
       }
     end
@@ -111,6 +113,7 @@ module Gitrob
 
     get '/logout' do
       session.clear
+      redirect '/'
     end
   end
 end
